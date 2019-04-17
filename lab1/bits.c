@@ -141,8 +141,8 @@ NOTES:
  *   2. Use the BDD checker to formally verify that your solutions produce
  *      the correct answers.
  */
-
 #endif
+
 /*
  * bitParity - returns 1 if x contains an odd number of 0's
  *   Examples: bitParity(5) = 0, bitParity(7) = 1
@@ -167,6 +167,7 @@ int bitParity(int x) {
   int n1 = (n2 >> 1) ^ (n2 & 0x1);
   return n1 ^ (x >> 31 & 1);
 }
+
 /*
  * rotateRight - Rotate x to the right by n
  *   Can assume that 0 <= n <= 31
@@ -176,23 +177,28 @@ int bitParity(int x) {
  *   Rating: 3
  */
 int rotateRight(int x, int n) {
-   // seperate the lowest n bits from x
-   int low_n_bits = x & ~(-1 << n);
-   /*
-    * shift the lowest n bits to the highest n bits by left shifting (32 - n)
-    * bits.
-    * note: since subtraction is not one of the legal ops in this problem,
-    * we can add (-n) instead. Fortunately, it's possible to convert a number
-    * to its additive inverse without using subtraction in two's complement:
-    *   -n = ~n + 1
-    */
-   int _32_minus_n = 32 + (~n + 1);
-   int shifted_low_n_bits = low_n_bits << _32_minus_n;
-   // right shift x by n bits, and clear the highest n bits
-   int high_n_bits_mask = -1 << _32_minus_n;
-   int shifted_x = (x >> n) & ~high_n_bits_mask;
-   // Apply the shifted n bits to the highest n bits in x
-   return shifted_x | shifted_low_n_bits;
+  // seperate the lowest n bits from x
+  int low_n_bits = x & ~(-1 << n);
+  int _32_minus_n = 32 + (~n + 1);
+  /*
+   * shift the lowest n bits to highest n bits by left shifting (32 - n) bits.
+   * note: since subtraction is not one of the legal ops in this problem,
+   * we can add (-n) instead. Fortunately, it's possible to convert a number
+   * to its additive inverse without using subtraction in two's complement:
+   *   -n = ~n + 1
+   */
+  int shifted_low_n_bits = low_n_bits << _32_minus_n;
+  /*
+   * Note that when n is 0, _32_minus_n would equal 32. Left shifting 32 bits
+   * would cause undefined result. Hence, we must set the value seperately in
+   * this case.
+   */
+  // TODO: set shifted_low_n_bits
+  // right shift x by n bits, and clear the highest n bits
+  int high_n_bits_mask = -1 << _32_minus_n;
+  int shifted_x = (x >> n) & ~high_n_bits_mask;
+  // Apply the shifted n bits to the highest n bits in x
+  return shifted_x | shifted_low_n_bits;
 }
 
 /*
@@ -204,7 +210,20 @@ int rotateRight(int x, int n) {
  *  Max ops: 25
  *  Rating: 2
  */
-int byteSwap(int x, int n, int m) { return 2; }
+int byteSwap(int x, int n, int m) {
+  // nth byte of x
+  int x_n = x >> (n << 3) & 0xFF;
+  // mth byte of x
+  int x_m = x >> (m << 3) & 0xFF;
+  // clear nth byte of x
+  x = x & ~(0xFF << (n << 3)) & ~(0xFF << (m << 3));
+  // set nth byte of x to x_m
+  x = x | (x_m << (n << 3));
+  // set mth byte of x to x_n
+  x = x | (x_n << (m << 3));
+  return x;
+}
+
 /*
  * fitsShort - return 1 if x can be represented as a
  *   16-bit, two's complement integer.
@@ -213,7 +232,11 @@ int byteSwap(int x, int n, int m) { return 2; }
  *   Max ops: 8
  *   Rating: 1
  */
-int fitsShort(int x) { return 2; }
+int fitsShort(int x) {
+  x >>= 16;
+  return !!x;
+}
+
 /*
  * bitAnd - x&y using only ~ and |
  *   Example: bitAnd(6, 5) = 4
@@ -221,7 +244,8 @@ int fitsShort(int x) { return 2; }
  *   Max ops: 8
  *   Rating: 1
  */
-int bitAnd(int x, int y) { return 2; }
+int bitAnd(int x, int y) { return ~(~x | ~y); }
+
 /*
  * subOK - Determine if can compute x-y without overflow
  *   Example: subOK(0x80000000,0x80000000) = 1,
@@ -230,7 +254,10 @@ int bitAnd(int x, int y) { return 2; }
  *   Max ops: 20
  *   Rating: 3
  */
-int subOK(int x, int y) { return 2; }
+int subOK(int x, int y) {
+  // TODO: complete this function
+}
+
 /*
  * isGreater - if x > y  then return 1, else return 0
  *   Example: isGreater(4,5) = 0, isGreater(5,4) = 1
@@ -238,7 +265,10 @@ int subOK(int x, int y) { return 2; }
  *   Max ops: 24
  *   Rating: 3
  */
-int isGreater(int x, int y) { return 2; }
+int isGreater(int x, int y) {
+  // TODO: complete this
+}
+
 /*
  * fitsBits - return 1 if x can be represented as an
  *  n-bit, two's complement integer.
@@ -248,7 +278,10 @@ int isGreater(int x, int y) { return 2; }
  *   Max ops: 15
  *   Rating: 2
  */
-int fitsBits(int x, int n) { return 2; }
+int fitsBits(int x, int n) {
+  // TODO: complete this
+}
+
 /*
  * negate - return -x
  *   Example: negate(1) = -1.
@@ -256,7 +289,7 @@ int fitsBits(int x, int n) { return 2; }
  *   Max ops: 5
  *   Rating: 2
  */
-int negate(int x) { return 2; }
+int negate(int x) { return ~x + 1; }
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
  *     and 0 otherwise
