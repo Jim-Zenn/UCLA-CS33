@@ -1,8 +1,6 @@
 /*
  * CS:APP Data Lab
  *
- * <PS:APP Data Lab
- *
  * Qingwei Zeng <classqze>
  *
  * bits.c - Source file with your solutions to the Lab.
@@ -159,13 +157,12 @@ int bitParity(int x) {
    * We do so, until n = 1.
    */
   // Note: integer overflow is the canonical example of undefined behavior in C
-  int n32 = x & ~(1 << 31);
-  int n16 = (n32 >> 16) ^ n32;
-  int n8 = (n16 >> 8) ^ n16;
-  int n4 = (n8 >> 4) ^ n8;
-  int n2 = (n4 >> 2) ^ n4;
-  int n1 = (n2 >> 1) ^ n2;
-  return (n1 & 1) ^ (x >> 31 & 1);
+  x = (x >> 16) ^ x;
+  x = (x >> 8) ^ x;
+  x = (x >> 4) ^ x;
+  x = (x >> 2) ^ x;
+  x = (x >> 1) ^ x;
+  return x & 1;
 }
 
 /*
@@ -178,21 +175,18 @@ int bitParity(int x) {
  */
 int rotateRight(int x, int n) {
   // seperate the lowest n bits from x
-  int lo_n_bits = x & ~(-1 << n);
-  int _32_minus_n = 32 + ~n + 1;
-  // shift the lowest n bits to highest n bits by left shifting (32 - n) bits.
-  int shifted_lo_n_bits = lo_n_bits << _32_minus_n;
+  int n_bits = x & ~(~0 << n);
+  int shifts = 32 + ~n;
   /*
-   * Note that when n is 0, _32_minus_n would equal 32. Left shifting 32 bits
-   * would cause undefined result. Hence, we must set the value seperately in
-   * this case.
+   * Note that when n is 0, number of shifts would equal 32. Left shifting 32
+   * bits would cause undefined result.
+   * Although this doesn't make much sense, we have to shift (32 - n - 1) first,
+   * then left shift one more time bit to avoid that awkward situation.
    */
-  // TODO: set shifted_lo_n_bits
   // right shift x by n bits, and clear the highest n bits
-  int high_n_bits_mask = -1 << _32_minus_n;
-  int shifted_x = (x >> n) & ~high_n_bits_mask;
+  int mask = (~0 << shifts) << 1;
   // Apply the shifted n bits to the highest n bits in x
-  return shifted_x | shifted_lo_n_bits;
+  return ((x >> n) & ~mask) | ((n_bits << shifts) << 1);
 }
 
 /*
@@ -226,10 +220,7 @@ int byteSwap(int x, int n, int m) {
  *   Max ops: 8
  *   Rating: 1
  */
-int fitsShort(int x) {
-  int hi_purged = (x << 16) >> 16;
-  return !(hi_purged ^ x);
-}
+int fitsShort(int x) { return !((x << 16) >> 16 ^ x); }
 
 /*
  * bitAnd - x&y using only ~ and |
@@ -238,9 +229,7 @@ int fitsShort(int x) {
  *   Max ops: 8
  *   Rating: 1
  */
-int bitAnd(int x, int y) {
-  return ~(~x | ~y);
-}
+int bitAnd(int x, int y) { return ~(~x | ~y); }
 
 /*
  * subOK - Determine if can compute x-y without overflow
@@ -288,9 +277,8 @@ int isGreater(int x, int y) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  int _32_minus_n = 32 + ~n + 1;
-  int hi_purged = (x << _32_minus_n) >> _32_minus_n;
-  return !(hi_purged ^ x);
+  int shifts = 32 + ~n + 1;
+  return !(((x << shifts) >> shifts) ^ x);
 }
 
 /*
@@ -300,9 +288,7 @@ int fitsBits(int x, int n) {
  *   Max ops: 5
  *   Rating: 2
  */
-int negate(int x) {
-  return ~x + 1;
-}
+int negate(int x) { return ~x + 1; }
 
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
@@ -311,7 +297,4 @@ int negate(int x) {
  *   Max ops: 10
  *   Rating: 1
  */
-int isTmax(int x) {
-  return !(~((x << 1) + 1)) & !(x >> 31);
-}
-
+int isTmax(int x) { return !(~x ^ (x + 1)) & !!(x ^ ~0); }
