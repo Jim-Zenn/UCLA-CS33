@@ -159,13 +159,13 @@ int bitParity(int x) {
    * We do so, until n = 1.
    */
   // Note: integer overflow is the canonical example of undefined behavior in C
-  int n32 = x & ~(1 << 31); // still x except first bit is now 0
-  int n16 = (n32 >> 16) ^ (n32 & 0xFFFF);
-  int n8 = (n16 >> 8) ^ (n16 & 0xFF);
-  int n4 = (n8 >> 4) ^ (n8 & 0xF);
-  int n2 = (n4 >> 2) ^ (n4 & 0x3);
-  int n1 = (n2 >> 1) ^ (n2 & 0x1);
-  return n1 ^ (x >> 31 & 1);
+  int n32 = x & ~(1 << 31);
+  int n16 = (n32 >> 16) ^ n32;
+  int n8 = (n16 >> 8) ^ n16;
+  int n4 = (n8 >> 4) ^ n8;
+  int n2 = (n4 >> 2) ^ n4;
+  int n1 = (n2 >> 1) ^ n2;
+  return (n1 & 1) ^ (x >> 31 & 1);
 }
 
 /*
@@ -178,27 +178,21 @@ int bitParity(int x) {
  */
 int rotateRight(int x, int n) {
   // seperate the lowest n bits from x
-  int low_n_bits = x & ~(-1 << n);
-  int _32_minus_n = 32 + (~n + 1);
-  /*
-   * shift the lowest n bits to highest n bits by left shifting (32 - n) bits.
-   * note: since subtraction is not one of the legal ops in this problem,
-   * we can add (-n) instead. Fortunately, it's possible to convert a number
-   * to its additive inverse without using subtraction in two's complement:
-   *   -n = ~n + 1
-   */
-  int shifted_low_n_bits = low_n_bits << _32_minus_n;
+  int lo_n_bits = x & ~(-1 << n);
+  int _32_minus_n = 32 + ~n + 1;
+  // shift the lowest n bits to highest n bits by left shifting (32 - n) bits.
+  int shifted_lo_n_bits = lo_n_bits << _32_minus_n;
   /*
    * Note that when n is 0, _32_minus_n would equal 32. Left shifting 32 bits
    * would cause undefined result. Hence, we must set the value seperately in
    * this case.
    */
-  // TODO: set shifted_low_n_bits
+  // TODO: set shifted_lo_n_bits
   // right shift x by n bits, and clear the highest n bits
   int high_n_bits_mask = -1 << _32_minus_n;
   int shifted_x = (x >> n) & ~high_n_bits_mask;
   // Apply the shifted n bits to the highest n bits in x
-  return shifted_x | shifted_low_n_bits;
+  return shifted_x | shifted_lo_n_bits;
 }
 
 /*
@@ -233,8 +227,8 @@ int byteSwap(int x, int n, int m) {
  *   Rating: 1
  */
 int fitsShort(int x) {
-  x >>= 16;
-  return !!x;
+  int hi_purged = (x << 16) >> 16;
+  return !(hi_purged ^ x);
 }
 
 /*
@@ -244,7 +238,9 @@ int fitsShort(int x) {
  *   Max ops: 8
  *   Rating: 1
  */
-int bitAnd(int x, int y) { return ~(~x | ~y); }
+int bitAnd(int x, int y) {
+  return ~(~x | ~y);
+}
 
 /*
  * subOK - Determine if can compute x-y without overflow
@@ -255,7 +251,13 @@ int bitAnd(int x, int y) { return ~(~x | ~y); }
  *   Rating: 3
  */
 int subOK(int x, int y) {
-  // TODO: complete this function
+  int x_sign = x >> 31;
+  int y_sign = y >> 31;
+  int diff = x + ~y + 1;
+  int diff_sign = diff >> 31;
+  int is_overflow = (!x_sign) & y_sign & diff_sign;
+  int is_underflow = x_sign & (!y_sign) & (!diff_sign);
+  return !is_overflow & !is_underflow;
 }
 
 /*
@@ -266,7 +268,14 @@ int subOK(int x, int y) {
  *   Rating: 3
  */
 int isGreater(int x, int y) {
-  // TODO: complete this
+  int x_sign = x >> 31;
+  int y_sign = y >> 31;
+  int diff = x + ~y + 1;
+  int diff_sign = diff >> 31;
+  int is_overflow = (!x_sign) & y_sign & diff_sign;
+  int is_underflow = x_sign & (!y_sign) & (!diff_sign);
+  int is_equal = !(x ^ y);
+  return (!is_equal) & (!is_underflow) & (is_overflow | !diff_sign);
 }
 
 /*
@@ -279,7 +288,9 @@ int isGreater(int x, int y) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  // TODO: complete this
+  int _32_minus_n = 32 + ~n + 1;
+  int hi_purged = (x << _32_minus_n) >> _32_minus_n;
+  return !(hi_purged ^ x);
 }
 
 /*
@@ -289,7 +300,10 @@ int fitsBits(int x, int n) {
  *   Max ops: 5
  *   Rating: 2
  */
-int negate(int x) { return ~x + 1; }
+int negate(int x) {
+  return ~x + 1;
+}
+
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
  *     and 0 otherwise
@@ -297,4 +311,7 @@ int negate(int x) { return ~x + 1; }
  *   Max ops: 10
  *   Rating: 1
  */
-int isTmax(int x) { return 2; }
+int isTmax(int x) {
+  return !(~((x << 1) + 1)) & !(x >> 31);
+}
+
