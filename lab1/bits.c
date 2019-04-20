@@ -298,3 +298,4 @@ int negate(int x) { return ~x + 1; }
  *   Rating: 1
  */
 int isTmax(int x) { return !(~x ^ (x + 1)) & !!(x ^ ~0); }
+
