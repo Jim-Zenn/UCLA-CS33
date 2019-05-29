@@ -42,7 +42,10 @@ void work_it_par(long *old, long *new) {
   {
     int proc_id, chunk_start, chunk_end;
     int i, j, k;
+    int u, v, w;
     long tmp;
+
+    int histogrammy_private[10] = {0};
 
 #pragma omp for reduction(+ : aggregate)
     for (proc_id = 0; proc_id < num_procs; ++proc_id) {
@@ -52,17 +55,8 @@ void work_it_par(long *old, long *new) {
       /* the first chunk_rmdr cores works on an extra layer */
       for (i = chunk_start * DIM2; i < chunk_end * DIM2; i += DIM2)
         for (j = i + DIM; j < i + DIM2 - DIM; j += DIM)
-          for (k = j + 1; k < j + DIM - 1; ++k)
-            aggregate += old[k] * we_need_the_var / gimmie_the_var;
-    }
-
-    int histogrammy_private[10] = {0};
-    int u, v, w;
-#pragma omp for
-    for (proc_id = 0; proc_id < num_procs; ++proc_id) {
-      for (i = chunk_start * DIM2; i < chunk_end * DIM2; i += DIM2) {
-        for (j = i + DIM; j < i + DIM2 - DIM; j += DIM) {
           for (k = j + 1; k < j + DIM - 1; ++k) {
+            aggregate += old[k] * we_need_the_var / gimmie_the_var;
             tmp = 0;
             for (u = -1; u <= 1; ++u)
               for (v = -1; v <= 1; ++v)
@@ -70,9 +64,6 @@ void work_it_par(long *old, long *new) {
                   tmp += old[k + u * DIM2 + v * DIM + w];
             tmp /= 27;
             new[k] = tmp;
-            /*
-             * update histogrammy array
-             */
             u = tmp / 100;
             if (u <= 0)
               histogrammy_private[0]++;
@@ -81,8 +72,6 @@ void work_it_par(long *old, long *new) {
             else
               histogrammy_private[u]++;
           }
-        }
-      }
     }
 
 #pragma omp critical
