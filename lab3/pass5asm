@@ -1,0 +1,3 @@
+40192e: mov %rsp,%rax
+40191b: add $0x37,%al
+4018e0: mov %rax,%rdi

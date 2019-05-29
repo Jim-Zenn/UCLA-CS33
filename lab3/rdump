@@ -880,6 +880,9 @@ Disassembly of section .text:
   4018d3:	48 83 c4 08          	add    $0x8,%rsp
   4018d7:	c3                   	retq   
 
+%rdi=0x7FFFF7DD5640
+%cookie=6054e4
+
 00000000004018d8 <start_farm>:
   4018d8:	b8 01 00 00 00       	mov    $0x1,%eax
   4018dd:	c3                   	retq   
@@ -887,34 +890,78 @@ Disassembly of section .text:
 00000000004018de <setval_339>:
   4018de:	c7 07 48 89 c7 c3    	movl   $0xc3c78948,(%rdi)
   4018e4:	c3                   	retq   
+===
+4018e0:
+  movq %rax,%rdi
+  retq
+4018e1:
+  movl %eax,%edi
+  retq
+
 
 00000000004018e5 <setval_389>:
   4018e5:	c7 07 f1 48 89 c7    	movl   $0xc78948f1,(%rdi)
   4018eb:	c3                   	retq   
+===
+4018e8:
+  movq %rax,%rdi
+  retq
+4018e9:
+  movl %eax,%edi
+  retq
 
 00000000004018ec <addval_434>:
   4018ec:	8d 87 c8 89 c7 90    	lea    -0x6f387638(%rdi),%eax
   4018f2:	c3                   	retq   
+===
+4018ef:
+  movl %eax,%edi
+  nop
+  retq
 
 00000000004018f3 <getval_154>:
   4018f3:	b8 cc 58 94 90       	mov    $0x909458cc,%eax
   4018f8:	c3                   	retq   
+===
+4018f7:
+  nop
+  retq
 
 00000000004018f9 <addval_219>:
   4018f9:	8d 87 58 90 c3 ff    	lea    -0x3c6fa8(%rdi),%eax
   4018ff:	c3                   	retq   
+===
+4018fb:
+  pop %rax
+  nop
+  retq
 
 0000000000401900 <getval_127>:
   401900:	b8 58 c3 05 eb       	mov    $0xeb05c358,%eax
   401905:	c3                   	retq   
+===
+401901:
+  pop %rax
+  retq
 
 0000000000401906 <getval_333>:
   401906:	b8 48 89 c7 c1       	mov    $0xc1c78948,%eax
   40190b:	c3                   	retq   
+===
+401907:
+  mov %rax,%rdi
+401908:
+  mov %eax,%edi
 
 000000000040190c <addval_118>:
   40190c:	8d 87 01 48 90 90    	lea    -0x6f6fb7ff(%rdi),%eax
   401912:	c3                   	retq   
+===
+401910:
+  nop
+  nop
+  retq
+
 
 0000000000401913 <mid_farm>:
   401913:	b8 01 00 00 00       	mov    $0x1,%eax

@@ -1,0 +1,45 @@
+touch3: 0x401850
+
+4018e0:
+  movq %rax,%rdi
+4018e1:
+  movl %eax,%edi
+4018ef:
+  movl %eax,%edi
+  nop
+4018f7:
+  nop
+4018fb:
+  pop %rax
+  nop
+401901:
+  pop %rax
+40198b:
+  mov %ecx,%esi
+  nop
+401991:
+  mov %esi,%ecx
+  nop
+  nop
+40191b:
+  add $0x37,%al
+401963:
+  mov %eax,%edx
+401969:
+  mov %eax,%edx
+401970:
+  mov %cl,%dh
+401984:
+  mov %edx,%ecx
+4019b9:
+  mov %rsp,%rax
+4019ba:
+  mov %esp,%eax
+401919:
+  lea (%rdi,%rsi,1),%rax
+
+
+40192e:
+  mov %rsp,%rax
+4018e0:
+  movq %rax,%rdi
