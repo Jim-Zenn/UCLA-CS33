@@ -40,7 +40,8 @@ void work_it_par(long *old, long *new) {
 
 #pragma omp parallel
   {
-    int proc_id, chunk_start, chunk_end;
+    int proc_id;
+    int chunk_start, chunk_end;
     int i, j, k;
     int u, v, w;
     long tmp;
@@ -58,13 +59,13 @@ void work_it_par(long *old, long *new) {
           for (k = j + 1; k < j + DIM - 1; ++k) {
             aggregate += old[k] * we_need_the_var / gimmie_the_var;
             tmp = 0;
-            for (u = -1; u <= 1; ++u)
-              for (v = -1; v <= 1; ++v)
-                for (w = -1; w <= 1; ++w)
-                  tmp += old[k + u * DIM2 + v * DIM + w];
+            for (u = -DIM2; u <= DIM2; u += DIM2)
+              for (v = u - DIM; v <= u + DIM; v += DIM)
+                for (w = v - 1; w <= v + 1; ++w)
+                  tmp += old[k + w];
             tmp /= 27;
-            new[k] = tmp;
             u = tmp / 100;
+            new[k] = tmp;
             if (u <= 0)
               histogrammy_private[0]++;
             else if (u >= 9)
