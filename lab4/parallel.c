@@ -14,6 +14,7 @@
 void work_it_par(long *old, long *new) {
   int i, j, k;
   int u, v, w;
+  int i_o, j_o, k_o;
   long tmp;
   long aggregate = 1;
 
@@ -31,21 +32,24 @@ void work_it_par(long *old, long *new) {
 
   printf("AGGR:%ld\n", aggregate);
 
+  i_o = DIM2;
   for (i = 1; i < DIM - 1; i++) {
+    j_o = i_o + DIM;
     for (j = 1; j < DIM - 1; j++) {
+      k_o = j_o + 1;
       for (k = 1; k < DIM - 1; k++) {
-        new[i * DIM2 + j * DIM + k] = 0;
-        for (u = -1; u <= 1; u++) {
-          for (v = -1; v <= 1; v++) {
-            for (w = -1; w <= 1; w++) {
-              new[i * DIM2 + j * DIM + k] +=
-                  old[(i + u) * DIM2 + (j + v) * DIM + (k + w)];
-            }
-          }
-        }
-        new[i * DIM2 + j * DIM + k] /= 27;
+        tmp = 0;
+        for (u = -1; u <= 1; u++)
+          for (v = -1; v <= 1; v++)
+            for (w = -1; w <= 1; w++)
+              tmp += old[k_o + u * DIM2 + v * DIM + w];
+        tmp /= 27;
+        new[k_o] = tmp;
+        k_o += 1;
       }
+      j_o += DIM;
     }
+    i_o += DIM2;
   }
 
   for (i = 1; i < DIM - 1; i++) {
