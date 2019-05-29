@@ -18,7 +18,6 @@
 void work_it_par(long *old, long *new) {
   int i, j, k;
   int u, v, w;
-  int i_o, j_o, k_o;
   long tmp;
   long aggregate = 1;
 
@@ -35,35 +34,23 @@ void work_it_par(long *old, long *new) {
         aggregate += old[k] * we_need_the_var / gimmie_the_var;
   printf("AGGR:%ld\n", aggregate);
 
-  i_o = DIM2;
-  for (i = 1; i < DIM - 1; i++) {
-    j_o = i_o + DIM;
-    for (j = 1; j < DIM - 1; j++) {
-      k_o = j_o + 1;
-      for (k = 1; k < DIM - 1; k++) {
+  for (i = DIM2; i < DIM3 - DIM2; i += DIM2) {
+    for (j = i + DIM; j < i + DIM2 - DIM; j += DIM) {
+      for (k = j + 1; k < j + DIM - 1; k++) {
         tmp = 0;
         for (u = -1; u <= 1; u++)
           for (v = -1; v <= 1; v++)
             for (w = -1; w <= 1; w++)
-              tmp += old[k_o + u * DIM2 + v * DIM + w];
+              tmp += old[k + u * DIM2 + v * DIM + w];
         tmp /= 27;
-        new[k_o] = tmp;
-        k_o += 1;
-      }
-      j_o += DIM;
-    }
-    i_o += DIM2;
-  }
-
-  for (i_o = DIM2; i_o < DIM3 - DIM2; i_o += DIM2) {
-    for (j_o = i_o + DIM; j_o < i_o + DIM2 - DIM; j_o += DIM) {
-      for (k_o = j_o + 1; k_o < j_o + DIM - 1; k_o++) {
-        u = (new[k_o] / 100);
-        if (u <= 0)
-          u = 0;
-        if (u >= 9)
-          u = 9;
-        histogrammy[u]++;
+        new[k] = tmp;
+        /*
+         * update histogrammy array
+         */
+        u = tmp / 100;
+        if (u <= 0) histogrammy[0]++;
+        else if (u >= 9) histogrammy[9]++;
+        else histogrammy[u]++;
       }
     }
   }
