@@ -24,9 +24,9 @@ void work_it_par(long *old, long *new) {
   const long gimmie_the_var = gimmie_the_func();
 
   for (i = DIM2; i < DIM3 - DIM2; i += DIM2) {
-    for (j = DIM; j < DIM2 - DIM; j += DIM) {
-      for (k = 1; k < DIM - 1; k++) {
-        compute_it = old[i + j + k] * we_need_the_var / gimmie_the_var;
+    for (j = i + DIM; j < i + DIM2 - DIM; j += DIM) {
+      for (k = j + 1; k < j + DIM - 1; k++) {
+        compute_it = old[k] * we_need_the_var / gimmie_the_var;
         aggregate += compute_it;
       }
     }
