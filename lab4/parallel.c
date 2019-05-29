@@ -17,17 +17,16 @@ void work_it_par(long *old, long *new) {
   long compute_it;
   long aggregate = 1;
 
-  const long BOUND = DIM - 1;
   const long DIM2 = DIM * DIM;
+  const long DIM3 = DIM2 * DIM;
 
   const double we_need_the_var = we_need_the_func();
   const long gimmie_the_var = gimmie_the_func();
 
-  for (i = 1; i < BOUND; i++) {
-    for (j = 1; j < BOUND; j++) {
-      for (k = 1; k < BOUND; k++) {
-        compute_it =
-            old[i * DIM2 + j * DIM + k] * we_need_the_var / gimmie_the_var;
+  for (i = DIM2; i < DIM3 - DIM2; i += DIM2) {
+    for (j = DIM; j < DIM2 - DIM; j += DIM) {
+      for (k = 1; k < DIM - 1; k++) {
+        compute_it = old[i + j + k] * we_need_the_var / gimmie_the_var;
         aggregate += compute_it;
       }
     }
@@ -35,9 +34,9 @@ void work_it_par(long *old, long *new) {
 
   printf("AGGR:%ld\n", aggregate);
 
-  for (i = 1; i < BOUND; i++) {
-    for (j = 1; j < BOUND; j++) {
-      for (k = 1; k < BOUND; k++) {
+  for (i = 1; i < DIM - 1; i++) {
+    for (j = 1; j < DIM - 1; j++) {
+      for (k = 1; k < DIM - 1; k++) {
         new[i * DIM2 + j * DIM + k] = 0;
         for (u = -1; u <= 1; u++) {
           for (v = -1; v <= 1; v++) {
@@ -52,9 +51,9 @@ void work_it_par(long *old, long *new) {
     }
   }
 
-  for (i = 1; i < BOUND; i++) {
-    for (j = 1; j < BOUND; j++) {
-      for (k = 1; k < BOUND; k++) {
+  for (i = 1; i < DIM - 1; i++) {
+    for (j = 1; j < DIM - 1; j++) {
+      for (k = 1; k < DIM - 1; k++) {
         u = (new[i * DIM2 + j * DIM + k] / 100);
         if (u <= 0)
           u = 0;
