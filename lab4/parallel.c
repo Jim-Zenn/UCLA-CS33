@@ -14,7 +14,7 @@
 void work_it_par(long *old, long *new) {
   int i, j, k;
   int u, v, w;
-  long compute_it;
+  long tmp;
   long aggregate = 1;
 
   const long DIM2 = DIM * DIM;
@@ -23,14 +23,11 @@ void work_it_par(long *old, long *new) {
   const double we_need_the_var = we_need_the_func();
   const long gimmie_the_var = gimmie_the_func();
 
-  for (i = DIM2; i < DIM3 - DIM2; i += DIM2) {
-    for (j = i + DIM; j < i + DIM2 - DIM; j += DIM) {
-      for (k = j + 1; k < j + DIM - 1; k++) {
-        compute_it = old[k] * we_need_the_var / gimmie_the_var;
-        aggregate += compute_it;
-      }
-    }
-  }
+  #pragma omp parallel for reduction(+:aggregate) private(i, j, k)
+  for (i = DIM2; i < DIM3 - DIM2; i += DIM2)
+    for (j = i + DIM; j < i + DIM2 - DIM; j += DIM)
+      for (k = j + 1; k < j + DIM - 1; k++)
+        aggregate += old[k] * we_need_the_var / gimmie_the_var;
 
   printf("AGGR:%ld\n", aggregate);
 
