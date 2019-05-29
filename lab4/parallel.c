@@ -5,6 +5,10 @@
  * Email : zenn@ucla.edu
  */
 
+/* To better comprehend this problem, I think it helps to understand what is
+ * actually being done.
+ */
+
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +33,6 @@ void work_it_par(long *old, long *new) {
     for (j = i + DIM; j < i + DIM2 - DIM; j += DIM)
       for (k = j + 1; k < j + DIM - 1; k++)
         aggregate += old[k] * we_need_the_var / gimmie_the_var;
-
   printf("AGGR:%ld\n", aggregate);
 
   i_o = DIM2;
@@ -52,10 +55,10 @@ void work_it_par(long *old, long *new) {
     i_o += DIM2;
   }
 
-  for (i = 1; i < DIM - 1; i++) {
-    for (j = 1; j < DIM - 1; j++) {
-      for (k = 1; k < DIM - 1; k++) {
-        u = (new[i * DIM2 + j * DIM + k] / 100);
+  for (i_o = DIM2; i_o < DIM3 - DIM2; i_o += DIM2) {
+    for (j_o = i_o + DIM; j_o < i_o + DIM2 - DIM; j_o += DIM) {
+      for (k_o = j_o + 1; k_o < j_o + DIM - 1; k_o++) {
+        u = (new[k_o] / 100);
         if (u <= 0)
           u = 0;
         if (u >= 9)
