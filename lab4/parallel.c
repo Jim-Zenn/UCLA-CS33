@@ -17,8 +17,8 @@ void work_it_par(long *old, long *new) {
   long tmp;
   long aggregate = 1;
 
-  const long DIM2 = DIM * DIM;
-  const long DIM3 = DIM2 * DIM;
+  const int DIM2 = DIM * DIM;
+  const int DIM3 = DIM2 * DIM;
 
   const double we_need_the_var = we_need_the_func();
   const long gimmie_the_var = gimmie_the_func();
