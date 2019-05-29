@@ -15,16 +15,20 @@ void work_it_par(long *old, long *new) {
   int i, j, k;
   int u, v, w;
   long compute_it;
-  long aggregate = 1.0;
+  long aggregate = 1;
 
   const long BOUND = DIM - 1;
   const long DIM2 = DIM * DIM;
 
+  const double we_need_the_var = we_need_the_func();
+  const long gimmie_the_var = gimmie_the_func();
+
   for (i = 1; i < BOUND; i++) {
     for (j = 1; j < BOUND; j++) {
       for (k = 1; k < BOUND; k++) {
-        compute_it = old[i * DIM2 + j * DIM + k] * we_need_the_func();
-        aggregate += compute_it / gimmie_the_func();
+        compute_it =
+            old[i * DIM2 + j * DIM + k] * we_need_the_var / gimmie_the_var;
+        aggregate += compute_it;
       }
     }
   }
