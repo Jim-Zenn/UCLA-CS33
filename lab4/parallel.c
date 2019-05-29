@@ -1,8 +1,8 @@
 // OpenMP version.  Edit and submit only this file.
 /* Enter your details below
- * Name :
- * UCLA ID :
- * Email :
+ * Name : Qingwei Zeng
+ * UCLA ID : 005181694
+ * Email : zenn@ucla.edu
  */
 
 #include <omp.h>
