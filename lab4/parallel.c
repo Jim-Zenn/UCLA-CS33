@@ -15,11 +15,9 @@
  * It only updates the **non-boundary entries (NBE)** of the two matrices.
  *
  * It does the following:
- *   - a multiplication and a division on old matrix's NBEs
- *   - then sum up old matrix's NBEs (aggregate)
+ *   - calculate the sum of old matrix's NBEs * we_need_the_var / gimmie_the_var
  *   - make new matrix's NBEs the sum of the 9 neighboring entries in old matrix
- *   - Record a histogram of new matrix's NBEs
- * constant, then sum up the
+ *   - Record a histogram of new matrix's NBEs constant
  */
 
 void work_it_par(long *old, long *new) {
@@ -28,7 +26,7 @@ void work_it_par(long *old, long *new) {
   const int DIM2 = DIM * DIM;  /* size of one layer */
   const int DIM3 = DIM2 * DIM; /* size of the whole cube */
 
-  const double we_need_the_var = we_need_the_func();
+  const long we_need_the_var = we_need_the_func();
   const long gimmie_the_var = gimmie_the_func();
 
   const int num_procs = omp_get_num_procs();
@@ -42,10 +40,9 @@ void work_it_par(long *old, long *new) {
   {
     int proc_id;
     int chunk_start, chunk_end;
-    int i, j, k;
-    int u, v, w;
+    int i, j, k, u;
     long tmp;
-
+    int aggregate_private;
     int histogrammy_private[10] = {0};
 
 #pragma omp for reduction(+ : aggregate)
@@ -57,22 +54,29 @@ void work_it_par(long *old, long *new) {
       for (i = chunk_start * DIM2; i < chunk_end * DIM2; i += DIM2)
         for (j = i + DIM; j < i + DIM2 - DIM; j += DIM)
           for (k = j + 1; k < j + DIM - 1; ++k) {
-            aggregate += old[k] * we_need_the_var / gimmie_the_var;
+            aggregate_private += old[k] * we_need_the_var / gimmie_the_var;
             tmp = 0;
-            for (u = -DIM2; u <= DIM2; u += DIM2)
-              for (v = u - DIM; v <= u + DIM; v += DIM)
-                for (w = v - 1; w <= v + 1; ++w)
-                  tmp += old[k + w];
+            /* sum up neighboring NBEs without for loop (unrolling) */
+            u = k - DIM2;
+            tmp += old[u - DIM - 1] + old[u - DIM] + old[u - DIM + 1];
+            tmp += old[u - 1] + old[u] + old[u + 1];
+            tmp += old[u + DIM - 1] + old[u + DIM] + old[u + DIM + 1];
+            u = k;
+            tmp += old[u - DIM - 1] + old[u - DIM] + old[u - DIM + 1];
+            tmp += old[u - 1] + old[u] + old[u + 1];
+            tmp += old[u + DIM - 1] + old[u + DIM] + old[u + DIM + 1];
+            u = k + DIM2;
+            tmp += old[u - DIM - 1] + old[u - DIM] + old[u - DIM + 1];
+            tmp += old[u - 1] + old[u] + old[u + 1];
+            tmp += old[u + DIM - 1] + old[u + DIM] + old[u + DIM + 1];
+
             tmp /= 27;
             u = tmp / 100;
             new[k] = tmp;
-            if (u <= 0)
-              histogrammy_private[0]++;
-            else if (u >= 9)
-              histogrammy_private[9]++;
-            else
-              histogrammy_private[u]++;
+            u = u <= 0 ? 0 : (u >= 9 ? 9 : u);
+            histogrammy_private[u]++;
           }
+      aggregate += aggregate_private;
     }
 
 #pragma omp critical
